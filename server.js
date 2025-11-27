@@ -5,6 +5,8 @@ const { Client } = require('pg'); // Postgres client
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(express.json());
+
 // Serve static files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -35,4 +37,39 @@ app.get('/db-test', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Get a random question for a given category
+app.get('/api/questions/random', async (req, res) => {
+  const category = req.query.category || 'NFL'; // default to NFL for now
+
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false
+  });
+
+  try {
+    await client.connect();
+
+    const result = await client.query(
+      `SELECT id, category, question_text,
+              option_a, option_b, option_c, option_d
+         FROM quiz_questions
+        WHERE category = $1
+     ORDER BY RANDOM()
+        LIMIT 1`,
+      [category.toUpperCase()]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ ok: false, error: 'No questions for this category yet.' });
+    }
+
+    res.json({ ok: true, question: result.rows[0] });
+  } catch (err) {
+    console.error('Random question error:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  } finally {
+    await client.end();
+  }
 });

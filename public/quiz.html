@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Play – Elite Ball Knowledge</title>
+</head>
+<body>
+  <h1 id="page-title">Elite Ball Knowledge</h1>
+  <div id="content">
+    Loading...
+  </div>
+
+  <script>
+    function getCategoryFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category') || 'NFL';
+      return cat.toUpperCase();
+    }
+
+    async function loadQuestion() {
+      const category = getCategoryFromQuery();
+      const contentDiv = document.getElementById('content');
+      document.getElementById('page-title').innerText = category + ' Quiz – Elite Ball Knowledge';
+
+      // Only NFL is live for now
+      if (category !== 'NFL') {
+        contentDiv.innerHTML = `<p>${category} quizzes are under construction. Check back soon!</p>
+                                <p><a href="index.html">← Back to categories</a></p>`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/questions/random?category=${encodeURIComponent(category)}`);
+        const data = await res.json();
+
+        if (!data.ok) {
+          contentDiv.innerHTML = `<p>Error: ${data.error}</p>
+                                  <p><a href="index.html">← Back to categories</a></p>`;
+          return;
+        }
+
+        const q = data.question;
+
+        contentDiv.innerHTML = `
+          <h2>${q.question_text}</h2>
+          <ol type="A">
+            <li data-option="A">${q.option_a}</li>
+            <li data-option="B">${q.option_b}</li>
+            <li data-option="C">${q.option_c}</li>
+            <li data-option="D">${q.option_d}</li>
+          </ol>
+          <button id="next-btn" style="display:none;">Next Question</button>
+          <p><a href="index.html">← Back to categories</a></p>
+        `;
+
+        const listItems = contentDiv.querySelectorAll('li[data-option]');
+        let answered = false;
+
+        listItems.forEach(li => {
+          li.style.cursor = 'pointer';
+          li.addEventListener('click', () => {
+            if (answered) return;
+            answered = true;
+
+            const selected = li.dataset.option;
+            // In future we’ll check server-side; for now just compare to correct option via another request or embed it.
+            // For v1, we can just highlight the chosen option and reload a new question on "Next".
+
+            // Simple UX: highlight selection and reload a new question
+            li.style.fontWeight = 'bold';
+            document.getElementById('next-btn').style.display = 'inline-block';
+          });
+        });
+
+        document.getElementById('next-btn').addEventListener('click', loadQuestion);
+      } catch (err) {
+        console.error(err);
+        contentDiv.innerHTML = `<p>Unexpected error loading question.</p>
+                                <p><a href="index.html">← Back to categories</a></p>`;
+      }
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
