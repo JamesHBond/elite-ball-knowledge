@@ -1,0 +1,104 @@
+/* -------- Global Styles -------- */
+body {
+    background-color: #0F0F0F; /* matte black */
+    color: #EAEAEA;           /* soft white */
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 20px;
+}
+
+/* Titles */
+h1, h2 {
+    color: #EAEAEA;
+    text-align: center;
+}
+
+/* Links */
+a {
+    color: #1A73E8; /* muted electric blue */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Generic Button Style */
+button, .btn {
+    background-color: #1A73E8;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+button:hover, .btn:hover {
+    background-color: #1558B0;
+    box-shadow: 0 0 6px #00E5FF55; /* subtle neon blue */
+}
+
+button:active, .btn:active {
+    transform: scale(0.97);
+}
+
+/* Category Buttons (landing page) */
+.category-btn {
+    display: block;
+    width: 220px;
+    margin: 15px auto;
+    background-color: #1A1A1A;
+    border: 2px solid #1A73E8;
+}
+
+.category-btn:hover {
+    background-color: #1A73E8;
+}
+
+/* Quiz Content Box */
+#content {
+    background-color: #1A1A1A;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 20px;
+}
+
+/* Quiz Answers */
+ol li {
+    background-color: #1A1A1A;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #333;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+ol li:hover {
+    background-color: #2A2A2A;
+    border: 1px solid #00E5FF;   /* neon accent */
+    box-shadow: 0 0 6px #00E5FF55;
+}
+
+/* Score Display */
+#score {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Correct / Wrong Answer Effects */
+.correct {
+    border: 2px solid #39FF14; /* neon green */
+    box-shadow: 0 0 8px #39FF1455;
+}
+
+.wrong {
+    color: #FF4081; /* neon red/pink */
+}
