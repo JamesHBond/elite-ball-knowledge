@@ -41,7 +41,7 @@ app.listen(PORT, () => {
 
 // Get a random question for a given category
 app.get('/api/questions/random', async (req, res) => {
-  const category = req.query.category || 'NFL'; // default to NFL for now
+  const category = req.query.category || 'NFL';
 
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -52,8 +52,14 @@ app.get('/api/questions/random', async (req, res) => {
     await client.connect();
 
     const result = await client.query(
-      `SELECT id, category, question_text,
-              option_a, option_b, option_c, option_d
+      `SELECT id,
+              category,
+              question_text,
+              option_a,
+              option_b,
+              option_c,
+              option_d,
+              correct_option              -- ⬅ add this
          FROM quiz_questions
         WHERE category = $1
      ORDER BY RANDOM()
@@ -65,6 +71,7 @@ app.get('/api/questions/random', async (req, res) => {
       return res.status(404).json({ ok: false, error: 'No questions for this category yet.' });
     }
 
+    // sends correct_option to the frontend as well
     res.json({ ok: true, question: result.rows[0] });
   } catch (err) {
     console.error('Random question error:', err);
@@ -73,3 +80,4 @@ app.get('/api/questions/random', async (req, res) => {
     await client.end();
   }
 });
+

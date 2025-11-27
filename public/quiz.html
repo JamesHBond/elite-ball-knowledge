@@ -11,6 +11,11 @@
   </div>
 
   <script>
+    // running totals for this session
+    let correctCount = 0;
+    let totalCount = 0;
+    let currentCorrectOption = null;
+
     function getCategoryFromQuery() {
       const params = new URLSearchParams(window.location.search);
       const cat = params.get('category') || 'NFL';
@@ -20,7 +25,8 @@
     async function loadQuestion() {
       const category = getCategoryFromQuery();
       const contentDiv = document.getElementById('content');
-      document.getElementById('page-title').innerText = category + ' Quiz – Elite Ball Knowledge';
+      document.getElementById('page-title').innerText =
+        category + ' Quiz – Elite Ball Knowledge';
 
       // Only NFL is live for now
       if (category !== 'NFL') {
@@ -40,7 +46,9 @@
         }
 
         const q = data.question;
+        currentCorrectOption = q.correct_option; // <-- from server
 
+        // build the question UI; include current score so it persists between questions
         contentDiv.innerHTML = `
           <h2>${q.question_text}</h2>
           <ol type="A">
@@ -49,11 +57,17 @@
             <li data-option="C">${q.option_c}</li>
             <li data-option="D">${q.option_d}</li>
           </ol>
+          <p id="result"></p>
+          <div id="score" style="margin-top:20px; font-size:18px; font-weight:bold;">
+            Score: ${correctCount} correct out of ${totalCount}
+          </div>
           <button id="next-btn" style="display:none;">Next Question</button>
           <p><a href="index.html">← Back to categories</a></p>
         `;
 
         const listItems = contentDiv.querySelectorAll('li[data-option]');
+        const resultEl = document.getElementById('result');
+        const nextBtn = document.getElementById('next-btn');
         let answered = false;
 
         listItems.forEach(li => {
@@ -63,21 +77,48 @@
             answered = true;
 
             const selected = li.dataset.option;
-            // In future we’ll check server-side; for now just compare to correct option via another request or embed it.
-            // For v1, we can just highlight the chosen option and reload a new question on "Next".
+            totalCount++;
 
-            // Simple UX: highlight selection and reload a new question
+            if (selected === currentCorrectOption) {
+              correctCount++;
+              resultEl.textContent = 'Correct!';
+              resultEl.style.color = 'green';
+            } else {
+              resultEl.textContent = `Wrong! Correct answer: ${currentCorrectOption}`;
+              resultEl.style.color = 'red';
+
+              // underline the correct one
+              const correctLi = contentDiv.querySelector(
+                `li[data-option="${currentCorrectOption}"]`
+              );
+              if (correctLi) {
+                correctLi.style.textDecoration = 'underline';
+              }
+            }
+
+            // bold the selected option
             li.style.fontWeight = 'bold';
-            document.getElementById('next-btn').style.display = 'inline-block';
+
+            // update score display
+            updateScore();
+
+            // show next button
+            nextBtn.style.display = 'inline-block';
           });
         });
 
-        document.getElementById('next-btn').addEventListener('click', loadQuestion);
+        nextBtn.addEventListener('click', loadQuestion);
       } catch (err) {
         console.error(err);
         contentDiv.innerHTML = `<p>Unexpected error loading question.</p>
                                 <p><a href="index.html">← Back to categories</a></p>`;
       }
+    }
+
+    function updateScore() {
+      const scoreEl = document.getElementById('score');
+      if (!scoreEl) return;
+      scoreEl.textContent = `Score: ${correctCount} correct out of ${totalCount}`;
     }
 
     loadQuestion();
