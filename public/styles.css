@@ -28,11 +28,18 @@ h1, h2 {
 
 .subtitle {
     text-align: center;
-    font-weight: normal;
-    color: #BDBDBD; /* soft gray */
+    font-weight: 500;
+    color: rgba(26, 115, 232, 0.8);  /* same blue, 80% opacity */
     margin-top: 10px;
     margin-bottom: 30px;
     font-size: 20px;
+}
+
+/*fix alignment of buttons on landing page*/
+.landing-container {
+    max-width: 480px;         /* keeps everything in a nice column */
+    margin: 60px auto;        /* centers horizontally, adds top/bottom space */
+    text-align: center;
 }
 
 
