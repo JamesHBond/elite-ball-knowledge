@@ -26,6 +26,15 @@ h1, h2 {
     margin: 20px auto 40px auto;
 }
 
+.subtitle {
+    text-align: center;
+    font-weight: normal;
+    color: #BDBDBD; /* soft gray */
+    margin-top: 10px;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
+
 
 /* Links */
 a {
