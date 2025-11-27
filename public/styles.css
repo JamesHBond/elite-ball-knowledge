@@ -37,8 +37,9 @@ h1, h2 {
 
 /*fix alignment of buttons on landing page*/
 .landing-container {
-    max-width: 480px;         /* keeps everything in a nice column */
-    margin: 60px auto;        /* centers horizontally, adds top/bottom space */
+    max-width: 480px;     /* still caps it on small screens */
+    width: 90%;           /* <-- NEW: uses up to 90% of screen */
+    margin: 60px auto;
     text-align: center;
 }
 
@@ -78,7 +79,8 @@ button:active, .btn:active {
 /* Category Buttons (landing page) */
 .category-btn {
     display: block;
-    width: 220px;
+    width: 100%;          /* <-- instead of 220px */
+    max-width: 320px;     /* cap it so it doesn’t get absurdly wide */
     margin: 15px auto;
     background-color: #1A1A1A;
     border: 2px solid #1A73E8;
@@ -93,9 +95,9 @@ button:active, .btn:active {
     background-color: #1A1A1A;
     padding: 25px;
     border-radius: 10px;
-    max-width: 600px;
-    margin: auto;
-    margin-top: 20px;
+    max-width: 800px;     /* was 600 – give desktop more room */
+    width: 90%;           /* responsive on mobile */
+    margin: 40px auto 20px auto;
 }
 
 /* Quiz Answers */
@@ -131,4 +133,50 @@ ol li:hover {
 
 .wrong {
     color: #FF4081; /* neon red/pink */
+}
+
+/* Small screens (phones) */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    #content {
+        margin-top: 20px;
+        padding: 18px;
+    }
+
+    ol li {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+/* Large screens (bigger desktops) */
+@media (min-width: 1200px) {
+    .landing-container {
+        max-width: 600px;
+    }
+
+    h1 {
+        font-size: 40px;
+    }
+
+    #content {
+        max-width: 900px;
+        padding: 30px;
+    }
+
+    ol li {
+        font-size: 16px;
+    }
 }
