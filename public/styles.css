@@ -22,14 +22,14 @@ h1, h2 {
         #1A73E8,
         transparent
     );
-    width: 60%;
+    width: 70%;
     margin: 20px auto 40px auto;
 }
 
 .subtitle {
     text-align: center;
     font-weight: 500;
-    color: rgba(26, 115, 232, 0.8);  /* same blue, 80% opacity */
+    color: rgba(26, 115, 232, 0.6);  /* same blue, 80% opacity */
     margin-top: 10px;
     margin-bottom: 30px;
     font-size: 20px;
