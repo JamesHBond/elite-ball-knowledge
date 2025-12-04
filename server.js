@@ -40,18 +40,20 @@ app.listen(PORT, () => {
 });
 
 // Get a random question for a given category
-app.get('/api/questions/random', async (req, res) => {
-  const category = req.query.category || 'NFL';
-
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false
-  });
-
+app.get('/api/questions', async (req, res) => {
   try {
-    await client.connect();
+    // Read category from query string, default to NFL
+    const categoryParam = (req.query.category || 'NFL').toUpperCase();
 
-    const result = await client.query(
+    // Only allow known categories
+    const allowedCategories = ['NFL', 'NBA', 'MLB', 'CFB'];
+
+    if (!allowedCategories.includes(categoryParam)) {
+      return res.status(400).json({ error: 'Invalid category' });
+    }
+
+    // Pull random questions for that category
+    const result = await pool.query(
       `SELECT id,
               category,
               question_text,
@@ -59,14 +61,20 @@ app.get('/api/questions/random', async (req, res) => {
               option_b,
               option_c,
               option_d,
-              correct_option              -- ⬅ add this
+              correct_option
          FROM quiz_questions
         WHERE category = $1
      ORDER BY RANDOM()
-        LIMIT 1`,
-      [category.toUpperCase()]
+        LIMIT 10`,
+      [categoryParam]
     );
 
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching questions:', err);
+    res.status(500).json({ error: 'Server error fetching questions' });
+  }
+});
     if (result.rows.length === 0) {
       return res.status(404).json({ ok: false, error: 'No questions for this category yet.' });
     }

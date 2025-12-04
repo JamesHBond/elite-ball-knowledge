@@ -34,12 +34,12 @@
       document.getElementById('page-title').innerText =
         category + ' Quiz – Elite Ball Knowledge';
 
-      // Only NFL is live for now
-      if (category !== 'NFL') {
-        contentDiv.innerHTML = `<p>${category} quizzes are under construction. Check back soon!</p>
-                                <p><a href="index.html">← Back to categories</a></p>`;
-        return;
-      }
+      // Only NFL is live for now (Commented out now that others are loaded. 03-DEC-2025 JAP)
+//      if (category !== 'NFL') {
+//        contentDiv.innerHTML = `<p>${category} quizzes are under construction. Check back soon!</p>
+//                                <p><a href="index.html">← Back to categories</a></p>`;
+//        return;
+//      }
 
       try {
         const res = await fetch(`/api/questions/random?category=${encodeURIComponent(category)}`);
