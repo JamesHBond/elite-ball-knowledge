@@ -39,53 +39,76 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Get a random question for a given category
-app.get('/api/questions', async (req, res) => {
+const express = require('express');
+const path = require('path');
+const { Pool } = require('pg'); // Use Pool not Client for repeated queries
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+
+// Serve static files from "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Database connection pool (persistent)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Simple health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Manual DB test
+app.get('/db-test', async (req, res) => {
   try {
-    // Read category from query string, default to NFL
-    const categoryParam = (req.query.category || 'NFL').toUpperCase();
-
-    // Only allow known categories
-    const allowedCategories = ['NFL', 'NBA', 'MLB', 'CFB'];
-
-    if (!allowedCategories.includes(categoryParam)) {
-      return res.status(400).json({ error: 'Invalid category' });
-    }
-
-    // Pull random questions for that category
-    const result = await pool.query(
-      `SELECT id,
-              category,
-              question_text,
-              option_a,
-              option_b,
-              option_c,
-              option_d,
-              correct_option
-         FROM quiz_questions
-        WHERE category = $1
-     ORDER BY RANDOM()
-        LIMIT 10`,
-      [categoryParam]
-    );
-
-    res.json(result.rows);
+    const result = await pool.query('SELECT NOW() AS now');
+    res.json({ ok: true, time: result.rows[0].now });
   } catch (err) {
-    console.error('Error fetching questions:', err);
-    res.status(500).json({ error: 'Server error fetching questions' });
-  }
-});
-    if (result.rows.length === 0) {
-      return res.status(404).json({ ok: false, error: 'No questions for this category yet.' });
-    }
-
-    // sends correct_option to the frontend as well
-    res.json({ ok: true, question: result.rows[0] });
-  } catch (err) {
-    console.error('Random question error:', err);
+    console.error('DB test error:', err);
     res.status(500).json({ ok: false, error: err.message });
-  } finally {
-    await client.end();
   }
 });
+
+
+// ===============================
+// 🔥 Random question by category
+// ===============================
+app.get('/api/questions/random', async (req, res) => {
+  try {
+    const category = (req.query.category || 'NFL').toUpperCase();
+    const allowed = ['NFL', 'NBA', 'MLB', 'CFB'];
+
+    if (!allowed.includes(category)) {
+      return res.status(400).json({ ok: false, error: 'Invalid category' });
+    }
+
+    const result = await pool.query(`
+      SELECT id, category, question_text,
+             option_a, option_b, option_c, option_d, correct_option
+      FROM quiz_questions
+      WHERE category = $1
+      ORDER BY RANDOM()
+      LIMIT 1;
+    `, [category]);
+
+    if (result.rows.length === 0) {
+      return res.json({ ok: false, error: 'No questions exist for this category yet.' });
+    }
+
+    res.json({ ok: true, question: result.rows[0] });
+
+  } catch (err) {
+    console.error('Random question API Error:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
